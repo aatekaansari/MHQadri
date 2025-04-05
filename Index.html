@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MH Qadri Export Rugs</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <!-- Firebase SDK (Latest Version) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+      padding-top: 60px;
+      padding-bottom: 60px;
+    }
+    header, footer {
+      background-color: #2196F3;
+      color: white;
+      width: 100%;
+      position: fixed;
+      left: 0;
+      z-index: 100;
+    }
+    header {
+      top: 0;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+    }
+    header #logo {
+      max-height: 40px;
+      display: none;
+    }
+    header h1 {
+      font-size: 18px;
+      margin: 0;
+      text-align: center;
+      flex-grow: 1;
+    }
+    header #header-links {
+      display: none;
+      gap: 10px;
+    }
+    #header-links button {
+      padding: 5px 10px;
+      font-size: 14px;
+      color: white;
+      background-color: #1976D2;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #header-links button:hover {
+      background-color: #1565C0;
+    }
+    footer {
+      bottom: 0;
+      padding: 10px 0;
+      font-size: 14px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    #login-page {
+      background-color: #E3F2FD;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-top: 60px;
+      padding-bottom: 60px;
+    }
+    #login-page h2 {
+      margin-bottom: 20px;
+      color: #2196F3;
+    }
+    #login-form {
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 300px;
+      margin-bottom: 20px;
+    }
+    #login-form input[type="text"],
+    #login-form input[type="password"],
+    #login-form input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    #login-form button {
+      width: 100%;
+      padding: 10px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #login-form button:hover {
+      background-color: #1976D2;
+    }
+    #description {
+      margin: 20px auto;
+      max-width: 600px;
+      text-align: left;
+      border: 2px solid #2196F3;
+      padding: 15px;
+      border-radius: 5px;
+      background-color: #E3F2FD;
+    }
+    #login-footer {
+      background-color: #2196F3;
+      color: white;
+      text-align: center;
+      padding: 10px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+    #profile-buttons-container {
+      width: 100%;
+      background-color: #424242;
+      padding: 5px;
+      position: fixed;
+      top: 60px;
+      left: 0;
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      align-items: center;
+      z-index: 99;
+    }
+    #profile-action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .fixed-btn {
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 14px;
+      cursor: pointer;
+      color: white;
+    }
+    #company-fixed-btn { background-color: #4CAF50; }
+    #contractor-fixed-btn { background-color: #FF9800; }
+    #company-profile-buttons,
+    #contractor-buttons-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    #company-profile-buttons button {
+      background-color: #9C27B0;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: white;
+      cursor: pointer;
+    }
+    #company-profile-buttons button:hover {
+      background-color: #7B1FA2;
+    }
+    #contractor-buttons-container button {
+      background-color: #FF5722;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: white;
+      cursor: pointer;
+    }
+    #contractor-buttons-container button:hover {
+      background-color: #E64A19;
+    }
+    main {
+      padding: 20px;
+      max-width: 100%;
+      overflow-x: hidden;
+      margin-top: 140px;
+    }
+    section {
+      display: none;
+      margin-bottom: 20px;
+      background-color: #BBDEFB;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    #change-password-section {
+      display: none;
+      margin-bottom: 20px;
+      background-color: #BBDEFB;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      min-width: 600px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 16px;
+      text-align: left;
+      font-size: 16px;
+      word-wrap: break-word;
+    }
+    th {
+      background-color: #2196F3;
+      color: white;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    input[type="email"],
+    select {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    input[name="date"] {
+      border-color: #2196F3;
+    }
+    button {
+      background-color: #2196F3;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #1976D2;
+    }
+    .vertical-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .profile-info {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    .profile-info span {
+      font-weight: bold;
+    }
+    .orders-container {
+      margin-bottom: 40px;
+      padding:10px;
+      border-radius: 5px;
+    }
+    #company-orders-container { background-color: #E3F2FD; }
+    #contractor-orders-container { background-color: #E8F5E9; }
+    #company-order-header,
+    #contractor-order-header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #company-order-header h2,
+    #contractor-order-header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+    #contractor-order-header h3 {
+      margin: 5px 0;
+      font-size: 18px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-group.no-print button {
+      padding: 6px 12px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .add-entry-btn { background-color: #4CAF50; color: white; }
+    .add-entry-btn:hover { background-color: #43獻47; }
+    .add-return-btn { background-color: #F44336; color: white; }
+    .add-return-btn:hover { background-color: #D32F2F; }
+    .pay-amount-btn { background-color: #2196F3; color: white; }
+    .pay-amount-btn:hover { background-color: #1976D2; }
+    .view-payment-details-btn { background-color: #9C27B0; color: white; }
+    .view-payment-details-btn:hover { background-color: #7B1FA2; }
+    .pdf-download-btn { background-color: #607D8B; color: white; }
+    .pdf-download-btn:hover { background-color: #455A64; }
+    @media print { .no-print { display: none !important; } }
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    #company-order-table tbody tr:hover,
+    #contractor-order-table tbody tr:hover {
+      transform: translateY(-5px);
+      transition: transform 0.2s ease;
+    }
+    @media (max-width: 600px) {
+      th, td { padding: 8px; font-size: 14px; }
+      #profile-buttons-container { flex-direction: column; align-items: center; }
+      .fixed-btn { width: 45%; margin: 2px; font-size: 12px; }
+      main { padding: 10px; }
+      header h1 { font-size: 16px; }
+      section { padding: 15px; }
+      .profile-info { font-size: 14px; }
+      #login-form { width: 90%; }
+      #payment-detail-section { padding: 10px; }
+      #payment-detail-section h2 { font-size: 18px; }
+      #payment-detail-section h3 { font-size: 16px; text-align: left; }
+      #payment-detail-section p { font-size: 14px; }
+      #payment-history-table { min-width: 100%; font-size: 12px; }
+      #payment-history-table th, #payment-history-table td { padding: 6px; font-size: 12px; }
+      #pay-amount-section { padding: 10px; }
+      #pay-amount-section h2 { font-size: 18px; }
+      #pay-amount-section .form-group { margin-bottom: 10px; }
+      #pay-amount-section input, #pay-amount-section select { font-size: 14px; }
+      #pay-amount-section button { font-size: 14px; padding: 8px 16px; }
+      header { padding: 10px; }
+      #header-links { flex-direction: column; gap: 5px; }
+    }
+    .hidden { display: none; }
+    .stock-issue-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 10px;
+      margin-top: 20px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      white-space: nowrap;
+    }
+    #company-received-table, #company-deliver-table, #company-balance-table,
+    #contractor-received-table, #contractor-deliver-table, #contractor-balance-table {
+      width: auto;
+      min-width: 200px;
+      font-size: 10px;
+      border-collapse: collapse;
+    }
+    #company-received-table th, #company-received-table td,
+    #company-deliver-table th, #company-deliver-table td, #company-balance-table th, #company-balance-table td,
+    #contractor-received-table th, #contractor-received-table td,
+    #contractor-deliver-table th, #contractor-deliver-table td,
+    #contractor-balance-table th, #contractor-balance-table td {
+      padding: 4px;
+      border: 1px solid #ddd;
+      white-space: nowrap;
+    }
+    #company-received-table th, #company-deliver-table th, #company-balance-table th,
+    #contractor-received-table th, #contractor-deliver-table th, #contractor-balance-table th {
+      background-color: #2196F3;
+      color: white;
+    }
+    #company-received-table h4, #company-deliver-table h4, #company-balance-table h4,
+    #contractor-received-table h4, #contractor-deliver-table h4, #contractor-balance-table h4 {
+      font-size: 12px;
+      margin: 0 0 6px 0;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .address-details {
+      font-size: 10px;
+      text-align: center;
+      margin-top: 10px;
+    }
+    #payment-detail-section h2 {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    #payment-detail-section h3 {
+      text-align: left;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+    #order-summary, #payment-summary, #payment-history {
+      text-align: left;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img id="logo" src="" alt="Logo">
+    <h1>MH Qadri Export Rugs</h1>
+    <div id="header-links">
+      <button id="change-password-btn">Change Password</button>
+      <button id="logout-btn">Logout</button>
+    </div>
+  </header>
+
+  <div id="login-page">
+    <h2>Login</h2>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+    <div id="description">
+      <p>MH Kadari Export Rags is a leading manufacturer and exporter of high-quality carpets, Dari, and handmade Turkish knot carpets. We offer premium designs, vibrant color combinations, and various sizes to suit any space. With a commitment to quality and craftsmanship, we provide durable, elegant, and competitively priced flooring solutions. Choose us for style, quality, and excellence!</p>
+    </div>
+    <footer id="login-footer">
+      <p>MH Qadri Export Rugs © 2023</p>
+    </footer>
+  </div>
+
+  <div id="profile-buttons-container">
+    <div id="profile-action-buttons">
+      <button id="company-fixed-btn" class="fixed-btn" onclick="showCompanyProfileSection()">Company Profile</button>
+      <button id="contractor-fixed-btn" class="fixed-btn" onclick="showContractorProfileSection()">Contractor Profile</button>
+    </div>
+    <div id="company-profile-buttons"></div>
+    <div id="contractor-buttons-container"></div>
+  </div>
+
+  <main id="main-content" style="display: none;">
+    <section id="change-password-section">
+      <h2>Change Password</h2>
+      <form id="change-password-form" class="vertical-form">
+        <div class="form-group">
+          <label for="change-user-id">User ID</label>
+          <input type="text" id="change-user-id" required>
+        </div>
+        <div class="form-group">
+          <label for="current-password">Current Password</label>
+          <input type="password" id="current-password" required>
+        </div>
+        <div class="form-group">
+          <label for="new-password">New Password</label>
+          <input type="password" id="new-password" required>
+        </div>
+        <div class="form-group">
+          <button type="submit">Change Password</button>
+          <button type="button" onclick="cancelChangePassword()">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="company-profile-section">
+      <h2>Company Profile</h2>
+      <form id="company-profile-form" class="vertical-form">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="company-name-input" required>
+        </div>
+        <div class="form-group">
+          <label>Mobile</label>
+          <input type="text" id="company-mobile-input" required>
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="company-address-input" required>
+        </div>
+        <div class="form-group">
+          <label>Upload Logo</label>
+          <input type="file" id="logo-upload" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label>Upload App Icon (192x192)</label>
+          <input type="file" id="icon-192-upload" accept="image/png">
+        </div>
+        <div class="form-group">
+          <label>Upload App Icon (512x512)</label>
+          <input type="file" id="icon-512-upload" accept="image/png">
+        </div>
+        <div class="form-group">
+          <button type="button" onclick="saveCompanyProfile()">Save Company Profile</button>
+          <button type="button" onclick="hideAllSections()">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="contractor-profile-section">
+      <h2>Contractor Profile</h2>
+      <form id="contractor-profile-form" class="vertical-form">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="contractor-name-input" required>
+        </div>
+        <div class="form-group">
+          <label>Mobile</label>
+          <input type="text" id="contractor-mobile-input" required>
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="contractor-address-input" required>
+        </div>
+        <div class="form-group">
+          <button type="button" onclick="saveContractorProfile()">Save Contractor Profile</button>
+          <button type="button" onclick="hideAllSections()">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="order-entry-section">
+      <h2><span id="current-order-type-label"></span> Entry Form</h2>
+      <form id="order-entry-form" class="vertical-form">
+        <input type="hidden" id="is-return-input" name="isReturn" value="false">
+        <div class="form-group" id="company-select-group" style="display: none;">
+          <label id="company-select-label">Select Company</label>
+          <select name="company-select"></select>
+        </div>
+        <div class="form-group">
+          <label id="date-label">Date*</label>
+          <input type="date" name="date" required>
+        </div>
+        <div class="form-group">
+          <label id="size-label">Size (e.g., 9×12)</label>
+          <input type="text" name="size">
+        </div>
+        <div class="form-group">
+          <label id="peace-label">Peace</label>
+          <input type="number" name="peace" step="any">
+        </div>
+        <div class="form-group">
+          <label id="kati-label">Kati</label>
+          <input type="number" name="kati" step="any">
+        </div>
+        <div class="form-group" id="tana-group">
+          <label id="tana-label">Tana</label>
+          <input type="number" name="tana" step="any">
+        </div>
+        <div class="form-group" id="material-jana-group" style="display: none;">
+          <label id="material-jana-label">Material Jana</label>
+          <input type="number" name="material-jana" step="any">
+        </div>
+        <div class="form-group">
+          <label id="rate-label">Rate</label>
+          <input type="number" name="rate" step="any">
+        </div>
+        <div class="form-group" id="description-group">
+          <label id="description-label">Description</label>
+          <input type="text" name="description">
+        </div>
+        <div id="additional-fields"></div>
+        <div class="form-group">
+          <button type="submit">Submit Order</button>
+          <button type="button" onclick="cancelToOrders()">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="order-output-section">
+      <div id="company-orders-container" class="orders-container">
+        <div id="company-order-header">
+          <h2>MH Qadri Export Rugs</h2>
+          <div class="profile-info" id="company-profile-info">
+            <span>Name: <span id="company-output-name">N/A</span></span>
+            <span>Mobile: <span id="company-output-mobile">N/A</span></span>
+            <span>Address: <span id="company-output-address">N/A</span></span>
+          </div>
+          <h3>Company Orders</h3>
+          <div class="btn-group no-print">
+            <button class="add-entry-btn" onclick="showAddOrderSection('company', false)">Order Entry</button>
+            <button class="add-return-btn" onclick="showAddOrderSection('company', true)">Carpet Bajar</button>
+            <button class="pay-amount-btn" onclick="showPayAmountSection('company')">Pay Amount</button>
+            <button class="view-payment-details-btn" onclick="showPaymentDetailSection('company')">View Payment Details</button>
+            <button class="pdf-download-btn" onclick="downloadPDF('company')">Download PDF</button>
+            <button class="pdf-download-btn" onclick="downloadReturnPDF('company')">Download Carpet Bajar PDF</button>
+          </div>
+        </div>
+        <h3>Order issue</h3>
+        <div class="table-container">
+          <table id="company-order-table">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="company-return-section">
+          <h3>Carpet Bajar Report</h3>
+          <div class="table-container">
+            <table id="company-return-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="stock-issue-container">
+          <div>
+            <h4>Received Order</h4>
+            <table id="company-received-table">
+              <thead><tr><th>Size</th><th>Peace</th></tr></thead>
+              <tbody id="company-received-list"></tbody>
+              <tfoot>
+                <tr><td>Total Peace</td><td id="company-received-peace">0</td></tr>
+                <tr><td>Total Material</td><td id="company-received-material">0</td></tr>
+                <tr><td>Final Gaj</td><td id="company-received-finalgaj">0.00</td></tr>
+                <tr><td>Binai Amount</td><td id="company-received-binai">0</td></tr>
+              </tfoot>
+            </table>
+          </div>
+          <div>
+            <h4>Order Deliver</h4>
+            <table id="company-deliver-table">
+              <thead><tr><th>Size</th><th>Peace</th></tr></thead>
+              <tbody id="company-deliver-list"></tbody>
+              <tfoot>
+                <tr><td>Total Peace</td><td id="company-deliver-peace">0</td></tr>
+                <tr><td>Carpet Wait</td><td id="company-deliver-material">0</td></tr>
+                <tr><td>Final Gaj</td><td id="company-deliver-finalgaj">0.00</td></tr>
+                <tr><td>Remaining Binai Amount</td><td id="company-deliver-binai">0</td></tr>
+              </tfoot>
+            </table>
+          </div>
+          <div>
+            <h4>Balance Order</h4>
+            <table id="company-balance-table">
+              <thead><tr><th>Size</th><th>Peace</th></tr></thead>
+              <tbody id="company-balance-list"></tbody>
+              <tfoot>
+                <tr><td>Total Peace</td><td id="company-balance-peace">0</td></tr>
+                <tr><td>Total Material</td><td id="company-balance-material">0</td></tr>
+                <tr><td>Final Gaj</td><td id="company-balance-finalgaj">0.00</td></tr>
+                <tr><td>Binai Amount</td><td id="company-balance-binai">0</td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+        <div class="address-details">
+          Adress Chhota Mirzapur Mirzapur Uttar Pradesh pin code 231001 Mobile 998445058 Proprietor mohd Hasan ansari
+        </div>
+      </div>
+
+      <div id="contractor-orders-container" class="orders-container">
+        <div id="contractor-order-header">
+          <h2 id="contractor-title">MH Qadri Export Rugs</h2>
+          <h3 id="contractor-subtitle">Mirzapur</h3>
+          <div class="profile-info" id="contractor-profile-info">
+            <span>Name: <span id="contractor-output-name">N/A</span></span>
+            <span>Mobile: <span id="contractor-output-mobile">N/A</span></span>
+            <span>Address: <span id="contractor-output-address">N/A</span></span>
+          </div>
+          <h3>Contractor Orders</h3>
+          <div class="btn-group no-print">
+            <button class="add-entry-btn" onclick="showAddOrderSection('contractor', false)">Order Entry</button>
+            <button class="add-return-btn" onclick="showAddOrderSection('contractor', true)">Carpet Bajar</button>
+            <button class="pay-amount-btn" onclick="showPayAmountSection('contractor')">Pay Amount</button>
+            <button class="view-payment-details-btn" onclick="showPaymentDetailSection('contractor')">View Payment Details</button>
+            <button class="pdf-download-btn" onclick="downloadPDF('contractor')">Download PDF</button>
+            <button class="pdf-download-btn" onclick="downloadReturnPDF('contractor')">Download Carpet Bajar PDF</button>
+          </div>
+        </div>
+        <h3>Order issue</h3>
+        <div class="table-container">
+          <table id="contractor-order-table">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="contractor-return-section">
+          <h3>Carpet Bajar Report</h3>
+          <div class="table-container">
+            <table id="contractor-return-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="stock-issue-container">
+          <div>
+            <h4>Received Order</h4>
+            <table id="contractor-received-table">
+              <thead><tr><th>Size</th><th>Peace</th></tr></thead>
+              <tbody id="contractor-received-list"></tbody>
+              <tfoot>
+                <tr><td>Total Peace</td><td id="contractor-received-peace">0</td></tr>
+                <tr><td>Total Material</td><td id="contractor-received-material">0</td></tr>
+                <tr><td>Final Gaj</td><td id="contractor-received-finalgaj">0.00</td></tr>
+                <tr><td>Binai Amount</td><td id="contractor-received-binai">0</td></tr>
+              </tfoot>
+            </table>
+          </div>
+          <div>
+            <h4>Order Deliver</h4>
+            <table id="contractor-deliver-table">
+              <thead><tr><th>Size</th><th>Peace</th></tr></thead>
+              <tbody id="contractor-deliver-list"></tbody>
+              <tfoot>
+                <tr><td>Total Peace</td><td id="contractor-deliver-peace">0</td></tr>
+                <tr><td>Carpet Wait</td><td id="contractor-deliver-material">0</td></tr>
+                <tr><td>Final Gaj</td><td id="contractor-deliver-finalgaj">0.00</td></tr>
+                <tr><td>Remaining Binai Amount</td><td id="contractor-deliver-binai">0</td></tr>
+              </tfoot>
+            </table>
+          </div>
+          <div>
+            <h4>Balance Order</h4>
+            <table id="contractor-balance-table">
+              <thead><tr><th>Size</th><th>Peace</th></tr></thead>
+              <tbody id="contractor-balance-list"></tbody>
+              <tfoot>
+                <tr><td>Total Peace</td><td id="contractor-balance-peace">0</td></tr>
+                <tr><td>Total Material</td><td id="contractor-balance-material">0</td></tr>
+                <tr><td>Final Gaj</td><td id="contractor-balance-finalgaj">0.00</td></tr>
+                <tr><td>Binai Amount</td><td id="contractor-balance-binai">0</td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+        <div class="address-details">
+          Adress Chhota Mirzapur Mirzapur Uttar Pradesh pin code 231001 Mobile 998445058 Proprietor mohd Hasan ansari
+        </div>
+      </div>
+    </section>
+
+    <section id="pay-amount-section">
+      <h2>Pay Amount to <span id="pay-to-name"></span></h2>
+      <form id="pay-amount-form" class="vertical-form">
+        <div class="form-group">
+          <label>Remaining Binai Amount</label>
+          <input type="text" id="remaining-binai-display" readonly>
+        </div>
+        <div class="form-group">
+          <label>Date*</label>
+          <input type="date" name="date" required>
+        </div>
+        <div class="form-group">
+          <label>Amount*</label>
+          <input type="number" name="amount" step="any" required>
+        </div>
+        <div class="form-group">
+          <label>Payment Mode*</label>
+          <select name="payment-mode" required>
+            <option value="">Select Payment Mode</option>
+            <option value="cash">Cash</option>
+            <option value="check">Check</option>
+            <option value="upi">UPI</option>
+            <option value="bank-transfer">Bank Transfer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button type="submit">Submit Payment</button>
+          <button type="button" onclick="cancelToOrders()">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="payment-detail-section">
+      <h2>MH Qadri Export Rugs</h2>
+      <h3>Payment Details <span id="payment-detail-name"></span></h3>
+      <div id="order-summary">
+        <h3>Order Summary</h3>
+        <p>Received Order Amount: <span id="total-received-binai">0</span></p>
+        <p>Balance Order Amount: <span id="total-balance-binai">0</span></p>
+        <p>Order Deliver Binai Amount: <span id="total-deliver-binai">0</span></p>
+      </div>
+      <div id="payment-summary">
+        <h3>Payment Summary</h3>
+        <p>Total Deliver Binai Amount: <span id="total-deliver-binai-payment">0</span></p>
+        <p>Total Paid Amount: <span id="total-paid-amount">0</span></p>
+        <p>Outstanding Amount: <span id="outstanding-amount">0</span></p>
+      </div>
+      <div id="payment-history">
+        <h3>Payment History</h3>
+        <table id="payment-history-table">
+          <thead><tr><th>Date</th><th>Amount</th><th>Payment Mode</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="btn-group">
+        <button onclick="cancelToOrders()">Back</button>
+        <button class="pdf-download-btn" onclick="downloadPaymentDetailPDF()">Download PDF</button>
+      </div>
+      <div class="address-details">
+        Adress Chhota Mirzapur Mirzapur Uttar Pradesh pin code 231001 Mobile 998445058 Proprietor mohd Hasan ansari
+      </div>
+    </section>
+  </main>
+
+  <footer id="footer" style="display: none;">
+    <p>MH Qadri Export Rugs © 2023</p>
+    <button onclick="downloadBackup()">Backup Data</button>
+    <input type="file" id="restore-file" accept=".json" style="display: none;">
+    <button onclick="triggerRestore()">Restore Data</button>
+  </footer>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCYOi6bS0lEOpveUFfwVkgaGKZdGd4vT_M",
+      authDomain: "mh-qadri.firebaseapp.com",
+      databaseURL: "https://mh-qadri-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "mh-qadri",
+      storageBucket: "mh-qadri.firebasestorage.app",
+      messagingSenderId: "340161443394",
+      appId: "1:340161443394:web:f4f6ba6c783a5b49b49fdb",
+      measurementId: "G-Y6VB1D6QFN"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // Login Functionality
+    document.getElementById('login-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          sessionStorage.setItem('loggedIn', 'true');
+          showMainContent();
+        })
+        .catch((error) => {
+          alert('Login failed: ' + error.message);
+        });
+    });
+
+    // Logout Functionality
+    document.getElementById('logout-btn').addEventListener('click', function() {
+      auth.signOut().then(() => {
+        sessionStorage.removeItem('loggedIn');
+        showLoginPage();
+      }).catch((error) => {
+        alert('Logout failed: ' + error.message);
+      });
+    });
+
+    // Check Authentication State
+    auth.onAuthStateChanged((user) => {
+      if (user && sessionStorage.getItem('loggedIn')) {
+        showMainContent();
+      } else {
+        showLoginPage();
+      }
+    });
+
+    // Show Main Content
+    function showMainContent() {
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      document.getElementById('header-links').style.display = 'flex';
+      document.getElementById('profile-buttons-container').style.display = 'block';
+      document.getElementById('footer').style.display = 'flex';
+      hideAllSections();
+      updateLayout();
+    }
+
+    // Show Login Page
+    function showLoginPage() {
+      document.getElementById('login-page').style.display = 'block';
+      document.getElementById('main-content').style.display = 'none';
+      document.getElementById('header-links').style.display = 'none';
+      document.getElementById('profile-buttons-container').style.display = 'none';
+      document.getElementById('footer').style.display = 'none';
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const logoSrc = localStorage.getItem('logo');
+      if (logoSrc) {
+        document.getElementById('logo').src = logoSrc;
+        document.getElementById('logo').style.display = 'inline';
+      }
+
+      // Load data from Firebase
+      loadCompanyProfiles();
+      loadContractorProfiles();
+      loadCompanyOrders();
+      loadContractorOrders();
+      loadCompanyStock();
+      loadCompanyPayments();
+      loadContractorPayments();
+
+      updateProfileButtons();
+      updateManifestIcons();
+      updateLayout();
+      document.getElementById('contractor-title').ondblclick = function() { editTitle(this, 'title'); };
+      document.getElementById('contractor-subtitle').ondblclick = function() { editTitle(this, 'subtitle'); };
+    });
+
+    document.getElementById('change-password-btn').addEventListener('click', function() {
+      hideAllSections();
+      document.getElementById('change-password-section').style.display = 'block';
+    });
+
+    document.getElementById('change-password-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const userId = document.getElementById('change-user-id').value;
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      db.ref('credentials').once('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        if (!data[userId]) {
+          alert('User ID does not exist');
+          return;
+        }
+        if (data[userId] !== currentPassword) {
+          alert('Current password is incorrect');
+          return;
+        }
+        if (newPassword === '') {
+          alert('New password cannot be empty');
+          return;
+        }
+        data[userId] = newPassword;
+        db.ref('credentials').set(data).then(() => {
+          alert('Password changed successfully');
+          document.getElementById('change-password-form').reset();
+          hideAllSections();
+          document.getElementById('order-output-section').style.display = 'block';
+        });
+      });
+    });
+
+    function cancelChangePassword() {
+      document.getElementById('change-password-form').reset();
+      hideAllSections();
+      document.getElementById('order-output-section').style.display = 'block';
+    }
+
+    function updateLayout() {
+      const header = document.querySelector('header');
+      const profileButtonsContainer = document.getElementById('profile-buttons-container');
+      const main = document.querySelector('main');
+      const headerHeight = header.offsetHeight;
+      profileButtonsContainer.style.top = headerHeight + 'px';
+      const profileButtonsHeight = profileButtonsContainer.offsetHeight;
+      main.style.marginTop = (headerHeight + profileButtonsHeight) + 'px';
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(() => {
+        console.log('Service Worker registered');
+      }).catch((error) => {
+        console.error('Service Worker registration failed:', error);
+      });
+    }
+
+    document.getElementById('logo-upload').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const logoDataUrl = e.target.result;
+          localStorage.setItem('logo', logoDataUrl);
+          document.getElementById('logo').src = logoDataUrl;
+          document.getElementById('logo').style.display = 'inline';
+          updateLayout();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function updateManifestIcons() {
+      const icon192 = localStorage.getItem('icon-192') || 'icon-192x192.png';
+      const icon512 = localStorage.getItem('icon-512') || 'icon-512x512.png';
+      const manifest = {
+        name: "MH Qadri Export Rugs",
+        short_name: "MH Qadri",
+        start_url: "/",
+        display: "standalone",
+        background_color: "#ffffff",
+        theme_color: "#2196F3",
+        icons: [
+          { src: icon192, sizes: "192x192", type: "image/png" },
+          { src: icon512, sizes: "512x512", type: "image/png" }
+        ]
+      };
+      const stringManifest = JSON.stringify(manifest);
+      const blob = new Blob([stringManifest], { type: 'application/json' });
+      const manifestURL = URL.createObjectURL(blob);
+      document.querySelector('link[rel="manifest"]').setAttribute('href', manifestURL);
+    }
+
+    document.getElementById('icon-192-upload').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          localStorage.setItem('icon-192', e.target.result);
+          updateManifestIcons();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('icon-512-upload').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          localStorage.setItem('icon-512', e.target.result);
+          updateManifestIcons();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Load data from Firebase
+    var companyProfiles = [];
+    var contractorProfiles = [];
+    var selectedCompanyProfile = null;
+    var selectedContractorProfile = null;
+    var currentOrderType = "";
+    var companyOrders = {};
+    var contractorOrders = {};
+    var companyStock = {};
+    var companyPayments = {};
+    var contractorPayments = {};
+
+    function loadCompanyProfiles() {
+      db.ref('companyProfiles').once('value', (snapshot) => {
+        companyProfiles = snapshot.val() || [];
+        updateProfileButtons();
+      });
+    }
+
+    function loadContractorProfiles() {
+      db.ref('contractorProfiles').once('value', (snapshot) => {
+        contractorProfiles = snapshot.val() || [];
+        updateProfileButtons();
+      });
+    }
+
+    function loadCompanyOrders() {
+      db.ref('companyOrders').once('value', (snapshot) => {
+        companyOrders = snapshot.val() || {};
+      });
+    }
+
+    function loadContractorOrders() {
+      db.ref('contractorOrders').once('value', (snapshot) => {
+        contractorOrders = snapshot.val() || {};
+      });
+    }
+
+    function loadCompanyStock() {
+      db.ref('companyStock').once('value', (snapshot) => {
+        companyStock = snapshot.val() || {};
+      });
+    }
+
+    function loadCompanyPayments() {
+      db.ref('companyPayments').once('value', (snapshot) => {
+        companyPayments = snapshot.val() || {};
+      });
+    }
+
+    function loadContractorPayments() {
+      db.ref('contractorPayments').once('value', (snapshot) => {
+        contractorPayments = snapshot.val() || {};
+      });
+    }
+
+    function downloadBackup() {
+      var backupData = {
+        companyProfiles: companyProfiles,
+        contractorProfiles: contractorProfiles,
+        companyOrders: companyOrders,
+        contractorOrders: contractorOrders,
+        companyStock: companyStock,
+        companyPayments: companyPayments,
+        contractorPayments: contractorPayments,
+        contractorTitle: localStorage.getItem('contractorTitle') || 'MH Qadri Export Rugs',
+        contractorSubtitle: localStorage.getItem('contractorSubtitle') || 'Mirzapur',
+        logo: localStorage.getItem('logo') || '',
+        icon192: localStorage.getItem('icon-192') || '',
+        icon512: localStorage.getItem('icon-512') || ''
+      };
+      var jsonString = JSON.stringify(backupData, null, 2);
+      var dataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(jsonString);
+      var a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = 'backup.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function triggerRestore() {
+      document.getElementById('restore-file').click();
+    }
+
+    document.getElementById('restore-file').addEventListener('change', function() {
+      restoreBackup();
+    });
+
+    function restoreBackup() {
+      if (!confirm('Are you sure you want to restore data from the backup? This will overwrite existing data.')) {
+        return;
+      }
+      var fileInput = document.getElementById('restore-file');
+      var file = fileInput.files[0];
+      if (!file) {
+        alert('Please select a backup file.');
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          var backupData = JSON.parse(e.target.result);
+          if (!backupData.companyProfiles || !backupData.contractorProfiles || !backupData.companyOrders || !backupData.contractorOrders || !backupData.companyStock || !backupData.companyPayments || !backupData.contractorPayments) {
+            alert('Invalid backup file. Missing required data.');
+            return;
+          }
+          db.ref('companyProfiles').set(backupData.companyProfiles);
+          db.ref('contractorProfiles').set(backupData.contractorProfiles);
+          db.ref('companyOrders').set(backupData.companyOrders);
+          db.ref('contractorOrders').set(backupData.contractorOrders);
+          db.ref('companyStock').set(backupData.companyStock);
+          db.ref('companyPayments').set(backupData.companyPayments);
+          db.ref('contractorPayments').set(backupData.contractorPayments);
+          localStorage.setItem('contractorTitle', backupData.contractorTitle || 'MH Qadri Export Rugs');
+          localStorage.setItem('contractorSubtitle', backupData.contractorSubtitle || 'Mirzapur');
+          localStorage.setItem('logo', backupData.logo || '');
+          localStorage.setItem('icon-192', backupData.icon192 || '');
+          localStorage.setItem('icon-512', backupData.icon512 || '');
+          location.reload();
+        } catch (error) {
+          alert('Invalid backup file. Please select a valid JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function formatNumber(x) {
+      return Number.isInteger(x) ? x.toString() : x.toFixed(2);
+    }
+
+    function numberWithCommas(x, decimals) {
+      var parts = x.toFixed(decimals).split(".");
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return parts.join(".");
+    }
+
+    function formatBinaiAmount(x) {
+      if (Number.isInteger(x)) return numberWithCommas(x, 0);
+      else return numberWithCommas(x, 1);
+    }
+
+    function parseSizeToInches(sizeStr) {
+      var parts = sizeStr.split('.');
+      var feet = parseInt(parts[0], 10);
+      var inches = parts[1] ? parseInt(parts[1], 10) : 0;
+      if (isNaN(feet) || isNaN(inches) || feet < 1 || feet > 100 || inches < 0 || inches > 11) {
+        throw new Error("Invalid size format");
+      }
+      return (feet * 12) + inches;
+    }
+
+    function downloadPDF(type) {
+      var container = (type === "company") ? document.getElementById("company-orders-container") : document.getElementById("contractor-orders-container");
+      var clone = container.cloneNode(true);
+      var noPrintElements = clone.querySelectorAll('.no-print');
+      noPrintElements.forEach(el => el.remove());
+      var opt = {
+        margin: 0.5,
+        filename: type + "_orders.pdf",
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(clone).save();
+    }
+
+    function downloadReturnPDF(type) {
+      var containerId = (type === "company") ? "company-orders-container" : "contractor-orders-container";
+      var container = document.getElementById(containerId);
+      var clone = container.cloneNode(true);
+      
+      var noPrintElements = clone.querySelectorAll('.no-print');
+      noPrintElements.forEach(el => el.remove());
+      
+      var headerId = (type === "company") ? "#company-order-header" : "#contractor-order-header";
+      var returnSectionId = (type === "company") ? "#company-return-section" : "#contractor-return-section";
+      
+      var tempContainer = document.createElement('div');
+      tempContainer.appendChild(clone.querySelector(headerId).cloneNode(true));
+      tempContainer.appendChild(clone.querySelector(returnSectionId).cloneNode(true));
+      tempContainer.appendChild(clone.querySelector('.address-details').cloneNode(true));
+      
+      var opt = {
+        margin: 0.5,
+        filename: type + "_carpet_bajar.pdf",
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(tempContainer).save();
+    }
+
+    function downloadPaymentDetailPDF() {
+      var container = document.getElementById("payment-detail-section");
+      var clone = container.cloneNode(true);
+      var noPrintElements = clone.querySelectorAll('.no-print');
+      noPrintElements.forEach(el => el.remove());
+      var opt = {
+        margin: 0.5,
+        filename: "payment_details.pdf",
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(clone).save();
+    }
+
+    function hideAllSections() {
+      document.getElementById('company-profile-section').style.display = 'none';
+      document.getElementById('contractor-profile-section').style.display = 'none';
+      document.getElementById('order-entry-section').style.display = 'none';
+      document.getElementById('order-output-section').style.display = 'none';
+      document.getElementById('pay-amount-section').style.display = 'none';
+      document.getElementById('payment-detail-section').style.display = 'none';
+      document.getElementById('change-password-section').style.display = 'none';
+    }
+
+    function showCompanyProfileSection() {
+      hideAllSections();
+      document.getElementById('company-profile-section').style.display = 'block';
+    }
+
+    function showContractorProfileSection() {
+      hideAllSections();
+      document.getElementById('contractor-profile-section').style.display = 'block';
+    }
+
+    function showAddOrderSection(orderType, isReturn = false) {
+      hideAllSections();
+      currentOrderType = orderType;
+      document.getElementById('order-entry-section').style.display = 'block';
+      var labelText = (orderType === "company") ? (isReturn ? "Company Carpet Bajar" : "Company Order") : (isReturn ? "Contractor Carpet Bajar" : "Contractor Order");
+      document.getElementById('current-order-type-label').textContent = labelText;
+      if (isReturn) {
+        document.getElementById('kati-label').textContent = "Carpet Weight";
+        document.getElementById('tana-group').style.display = 'none';
+        document.getElementById('material-jana-group').style.display = 'block';
+        document.getElementById('size-label').textContent = "Carpet Size (e.g., 9×12)";
+      } else {
+        document.getElementById('kati-label').textContent = "Kati";
+        document.getElementById('tana-group').style.display = 'block';
+        document.getElementById('material-jana-group').style.display = 'none';
+        document.getElementById('size-label').textContent = "Size (e.g., 9×12)";
+      }
+      loadCompanySelect();
+      loadAdditionalFields();
+      document.getElementById('is-return-input').value = isReturn ? 'true' : 'false';
+    }
+
+    function showCompanyOrders() {
+      hideAllSections();
+      document.getElementById('order-output-section').style.display = 'block';
+      document.getElementById('company-orders-container').style.display = 'block';
+      document.getElementById('contractor-orders-container').style.display = 'none';
+      updateProfileDisplay();
+      updateCompanyOrdersTable();
+      updateCompanyStock();
+    }
+
+    function showContractorOrders() {
+      hideAllSections();
+      document.getElementById('order-output-section').style.display = 'block';
+      document.getElementById('contractor-orders-container').style.display = 'block';
+      document.getElementById('company-orders-container').style.display = 'none';
+      updateProfileDisplay();
+      updateContractorOrdersTable();
+      updateContractorStock();
+    }
+
+    function cancelToOrders() {
+      hideAllSections();
+      if (currentOrderType === "company") showCompanyOrders();
+      else if (currentOrderType === "contractor") showContractorOrders();
+    }
+
+    function loadCompanySelect() {
+      var selectGroup = document.getElementById('company-select-group');
+      var select = selectGroup.querySelector('select');
+      select.innerHTML = "";
+      if (currentOrderType === "contractor") {
+        selectGroup.style.display = 'block';
+        companyProfiles.forEach(function(profile) {
+          var option = document.createElement("option");
+          option.value = profile.name;
+          option.textContent = profile.name;
+          select.appendChild(option);
+        });
+      } else {
+        selectGroup.style.display = 'none';
+      }
+    }
+
+    function saveCompanyProfile() {
+      var name = document.getElementById('company-name-input').value;
+      var mobile = document.getElementById('company-mobile-input').value;
+      var address = document.getElementById('company-address-input').value;
+      if (!name || !mobile || !address) {
+        alert("Please fill all company profile fields.");
+        return;
+      }
+      var profile = { name: name, mobile: mobile, address: address, additionalColumns: [] };
+      companyProfiles.push(profile);
+      companyOrders[name] = [];
+      companyStock[name] = { sizePeaceMap: {}, issueSizePeaceMap: {}, kati: 0, tana: 0, finalGaj: 0, binaiAmount: 0, issueKati: 0, issueTana: 0, issueFinalGaj: 0, issueBinaiAmount: 0 };
+      companyPayments[name] = [];
+      db.ref('companyProfiles').set(companyProfiles);
+      db.ref('companyOrders').set(companyOrders);
+      db.ref('companyStock').set(companyStock);
+      db.ref('companyPayments').set(companyPayments);
+      document.getElementById('company-profile-form').reset();
+      updateProfileButtons();
+      updateLayout();
+      hideAllSections();
+    }
+
+    function saveContractorProfile() {
+      var name = document.getElementById('contractor-name-input').value;
+      var mobile = document.getElementById('contractor-mobile-input').value;
+      var address = document.getElementById('contractor-address-input').value;
+      if (!name || !mobile || !address) {
+        alert("Please fill all contractor profile fields.");
+        return;
+      }
+      var profile = { name: name, mobile: mobile, address: address, additionalColumns: [] };
+      contractorProfiles.push(profile);
+      contractorOrders[name] = [];
+      contractorPayments[name] = [];
+      db.ref('contractorProfiles').set(contractorProfiles);
+      db.ref('contractorOrders').set(contractorOrders);
+      db.ref('contractorPayments').set(contractorPayments);
+      document.getElementById('contractor-profile-form').reset();
+      updateProfileButtons();
+      updateLayout();
+      hideAllSections();
+    }
+
+    function updateProfileButtons() {
+      var compContainer = document.getElementById('company-profile-buttons');
+      compContainer.innerHTML = "";
+      companyProfiles.forEach(function(profile) {
+        var btn = document.createElement("button");
+        btn.className = "profile-btn";
+        btn.textContent = profile.name;
+        btn.ondblclick = function() {
+          if (confirm("Delete profile " + profile.name + "?")) deleteCompanyProfile(profile);
+        };
+        btn.onclick = function() { selectedCompanyProfile = profile; showCompanyOrders(); };
+        compContainer.appendChild(btn);
+      });
+      var contrContainer = document.getElementById('contractor-buttons-container');
+      contrContainer.innerHTML = "";
+      contractorProfiles.forEach(function(profile) {
+        var btn = document.createElement("button");
+        btn.className = "profile-btn";
+        btn.textContent = profile.name;
+        btn.ondblclick = function() {
+          if (confirm("Delete profile " + profile.name + "?")) deleteContractorProfile(profile);
+        };
+        btn.onclick = function() { selectedContractorProfile = profile; showContractorOrders(); };
+        contrContainer.appendChild(btn);
+      });
+    }
+
+    function deleteCompanyProfile(profile) {
+      companyProfiles = companyProfiles.filter(p => p.name !== profile.name);
+      delete companyOrders[profile.name];
+      delete companyStock[profile.name];
+      delete companyPayments[profile.name];
+      db.ref('companyProfiles').set(companyProfiles);
+      db.ref('companyOrders').set(companyOrders);
+      db.ref('companyStock').set(companyStock);
+      db.ref('companyPayments').set(companyPayments);
+      if (selectedCompanyProfile && selectedCompanyProfile.name === profile.name) selectedCompanyProfile = null;
+      updateProfileButtons();
+      updateLayout();
+      hideAllSections();
+    }
+
+    function deleteContractorProfile(profile) {
+      contractorProfiles = contractorProfiles.filter(p => p.name !== profile.name);
+      delete contractorOrders[profile.name];
+      delete contractorPayments[profile.name];
+      db.ref('contractorProfiles').set(contractorProfiles);
+      db.ref('contractorOrders').set(contractorOrders);
+      db.ref('contractorPayments').set(contractorPayments);
+      if (selectedContractorProfile && selectedContractorProfile.name === profile.name) selectedContractorProfile = null;
+      updateProfileButtons();
+      updateLayout();
+      hideAllSections();
+    }
+
+    function updateProfileDisplay() {
+      var compInfo = document.getElementById('company-profile-info');
+      if (selectedCompanyProfile) {
+        compInfo.innerHTML = `<span>Name: <span id="company-output-name">${selectedCompanyProfile.name}</span></span>
+                              <span>Mobile: <span id="company-output-mobile">${selectedCompanyProfile.mobile}</span></span>
+                              <span>Address: <span id="company-output-address">${selectedCompanyProfile.address}</span></span>`;
+      } else {
+        compInfo.innerHTML = `<span>Name: N/A</span><span>Mobile: N/A</span><span>Address: N/A</span>`;
+      }
+      var contrInfo = document.getElementById('contractor-profile-info');
+      if (selectedContractorProfile) {
+        contrInfo.innerHTML = `<span>Name: <span id="contractor-output-name">${selectedContractorProfile.name}</span></span>
+                               <span>Mobile: <span id="contractor-output-mobile">${selectedContractorProfile.mobile}</span></span>
+                               <span>Address: <span id="contractor-output-address">${selectedContractorProfile.address}</span></span>`;
+      } else {
+        contrInfo.innerHTML = `<span>Name: N/A</span><span>Mobile: N/A</span><span>Address: N/A</span>`;
+      }
+    }
+
+    function loadAdditionalFields() {
+      var container = document.getElementById("additional-fields");
+      container.innerHTML = "";
+      var currentCols = (currentOrderType === "company" && selectedCompanyProfile) ? (selectedCompanyProfile.additionalColumns || []) :
+                        (currentOrderType === "contractor" && selectedContractorProfile) ? (selectedContractorProfile.additionalColumns || []) : [];
+      currentCols.forEach(function(col) {
+        var div = document.createElement("div");
+        div.className = "form-group";
+        var label = document.createElement("label");
+        label.textContent = col;
+        var input = document.createElement("input");
+        input.type = "text";
+        input.name = col;
+        div.appendChild(label);
+        div.appendChild(input);
+        container.appendChild(div);
+      });
+    }
+
+    document.getElementById('order-entry-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      var isReturn = document.getElementById('is-return-input').value === 'true';
+      var companySelect = document.querySelector('select[name="company-select"]');
+      var selectedCompany = companySelect ? companySelect.value : null;
+      var date = document.querySelector('input[name="date"]').value;
+      var sizeInput = document.querySelector('input[name="size"]').value;
+      var peace = parseFloat(document.querySelector('input[name="peace"]').value) || 0;
+      var kati = parseFloat(document.querySelector('input[name="kati"]').value) || 0;
+      var tana = parseFloat(document.querySelector('input[name="tana"]').value) || 0;
+      var materialJana = parseFloat(document.querySelector('input[name="material-jana"]').value) || 0;
+      var rate = parseFloat(document.querySelector('input[name="rate"]').value) || 0;
+      var description = document.querySelector('input[name="description"]').value;
+
+      var sizeParts = sizeInput.split(/[×x]/);
+      if (sizeParts.length !== 2) {
+        alert("Please enter a valid size in the format 'width×height'");
+        return;
+      }
+      try {
+        var widthInches = parseSizeToInches(sizeParts[0].trim());
+        var heightInches = parseSizeToInches(sizeParts[1].trim());
+      } catch (e) {
+        alert("Invalid size format. Please use formats like '4.1' or '5' between 1 to 100 feet and 0 to 11 inches.");
+        return;
+      }
+      var product = widthInches * heightInches;
+      var gaj = product / 1296;
+      var finalGaj = gaj * peace;
+      var binaiAmount = Math.round(finalGaj * rate);
+
+      var displayedSize = sizeParts[0].trim() + "×" + sizeParts[1].trim();
+
+      var additionalData = {};
+      var currentCols = (currentOrderType === "company") ? (selectedCompanyProfile ? selectedCompanyProfile.additionalColumns || [] : []) :
+                        (selectedContractorProfile ? selectedContractorProfile.additionalColumns || [] : []);
+      currentCols.forEach(function(col) {
+        var input = document.querySelector('input[name="'+col+'"]');
+        additionalData[col] = input ? input.value : "";
+      });
+
+      if (currentOrderType === "contractor" && selectedCompany && !isReturn) {
+        var stock = companyStock[selectedCompany];
+        if (!stock || !stock.sizePeaceMap[displayedSize] || stock.sizePeaceMap[displayedSize] < peace) {
+          alert("Not enough peace in stock for size " + displayedSize);
+          return;
+        }
+        if (stock.kati < kati) { alert("Not enough kati in stock"); return; }
+        if (stock.tana < tana) { alert("Not enough tana in stock"); return; }
+        if (stock.finalGaj < finalGaj) { alert("Not enough final gaj in stock"); return; }
+        if (stock.binaiAmount < binaiAmount) { alert("Not enough binai amount in stock"); return; }
+      }
+
+      var order = {
+        id: Date.now(),
+        date: date,
+        size: displayedSize,
+        peace: isReturn ? -peace : peace,
+        gaj: gaj,
+        finalGaj: isReturn ? -finalGaj : finalGaj,
+        kati: isReturn ? -kati : kati,
+        tana: isReturn ? 0 : tana,
+        materialJana: isReturn ? materialJana : 0,
+        rate: rate,
+        binaiAmount: isReturn ? -binaiAmount : binaiAmount,
+        description: description,
+        additional: additionalData,
+        company: selectedCompany,
+        isReturn: isReturn
+      };
+
+      if (currentOrderType === "company") {
+        if (!companyOrders[selectedCompanyProfile.name]) companyOrders[selectedCompanyProfile.name] = [];
+        companyOrders[selectedCompanyProfile.name].push(order);
+        recalculateCompanyStock(selectedCompanyProfile.name);
+        db.ref('companyOrders').set(companyOrders);
+        db.ref('companyStock').set(companyStock);
+        showCompanyOrders();
+      } else {
+        if (!contractorOrders[selectedContractorProfile.name]) contractorOrders[selectedContractorProfile.name] = [];
+        contractorOrders[selectedContractorProfile.name].push(order);
+        if (selectedCompany) {
+          companyStock[selectedCompany].sizePeaceMap[order.size] = (companyStock[selectedCompany].sizePeaceMap[order.size] || 0) - order.peace;
+          companyStock[selectedCompany].kati = (companyStock[selectedCompany].kati || 0) - order.kati;
+          if (!isReturn) {
+            companyStock[selectedCompany].tana = (companyStock[selectedCompany].tana || 0) - order.tana;
+          } else {
+            companyStock[selectedCompany].tana = (companyStock[selectedCompany].tana || 0) - order.materialJana;
+          }
+          companyStock[selectedCompany].finalGaj = (companyStock[selectedCompany].finalGaj || 0) - order.finalGaj;
+          companyStock[selectedCompany].binaiAmount = (companyStock[selectedCompany].binaiAmount || 0) - order.binaiAmount;
+          if (!companyStock[selectedCompany].issueSizePeaceMap[order.size]) companyStock[selectedCompany].issueSizePeaceMap[order.size] = 0;
+          companyStock[selectedCompany].issueSizePeaceMap[order.size] += order.peace;
+          companyStock[selectedCompany].issueKati += order.kati;
+          companyStock[selectedCompany].issueTana += order.tana;
+          companyStock[selectedCompany].issueFinalGaj += order.finalGaj;
+          companyStock[selectedCompany].issueBinaiAmount += order.binaiAmount;
+          db.ref('companyStock').set(companyStock);
+        }
+        db.ref('contractorOrders').set(contractorOrders);
+        showContractorOrders();
+      }
+
+      document.getElementById('order-entry-form').reset();
+    });
+
+    function recalculateCompanyStock(profileName) {
+      var stock = { kati: 0, tana: 0, finalGaj: 0, binaiAmount: 0, sizePeaceMap: {}, issueKati: 0, issueTana: 0, issueFinalGaj: 0, issueBinaiAmount: 0, issueSizePeaceMap: {} };
+      var orders = companyOrders[profileName] || [];
+      orders.forEach(order => {
+        if (!stock.sizePeaceMap[order.size]) stock.sizePeaceMap[order.size] = 0;
+        stock.sizePeaceMap[order.size] += order.peace;
+        stock.kati += order.kati;
+        if (!order.isReturn) {
+          stock.tana += order.tana;
+        } else {
+          stock.tana -= order.materialJana;
+        }
+        stock.finalGaj += order.finalGaj;
+        stock.binaiAmount += order.binaiAmount;
+      });
+      companyStock[profileName] = stock;
+      db.ref('companyStock').set(companyStock);
+    }
+
+    function updateCompanyStock() {
+      if (!selectedCompanyProfile) return;
+      var orders = companyOrders[selectedCompanyProfile.name] || [];
+      var receivedSizePeaceMap = {};
+      var deliverSizePeaceMap = {};
+      var totalReceivedPeace = 0, totalReceivedMaterial = 0, totalReceivedFinalGaj = 0, totalReceivedBinaiAmount = 0;
+      var totalDeliverPeace = 0, totalDeliverMaterial = 0, totalDeliverFinalGaj = 0, totalDeliverBinaiAmount = 0;
+
+      orders.forEach(function(order) {
+        if (!order.isReturn) {
+          if (!receivedSizePeaceMap[order.size]) receivedSizePeaceMap[order.size] = 0;
+          receivedSizePeaceMap[order.size] += order.peace || 0;
+          totalReceivedPeace += order.peace || 0;
+          totalReceivedMaterial += (order.kati || 0) + (order.tana || 0);
+          totalReceivedFinalGaj += order.finalGaj || 0;
+          totalReceivedBinaiAmount += order.binaiAmount || 0;
+        } else {
+          if (!deliverSizePeaceMap[order.size]) deliverSizePeaceMap[order.size] = 0;
+          deliverSizePeaceMap[order.size] += Math.abs(order.peace || 0);
+          totalDeliverPeace += Math.abs(order.peace || 0);
+          totalDeliverMaterial += Math.abs(order.kati || 0) + (order.materialJana || 0);
+          totalDeliverFinalGaj += Math.abs(order.finalGaj || 0);
+          totalDeliverBinaiAmount += Math.abs(order.binaiAmount || 0);
+        }
+      });
+
+      var totalPaidAmount = (companyPayments[selectedCompanyProfile.name] || []).reduce((sum, p) => sum + p.amount, 0);
+      var remainingBinai = Math.max(0, totalDeliverBinaiAmount - totalPaidAmount);
+
+      var receivedList = document.getElementById('company-received-list');
+      receivedList.innerHTML = "";
+      for (var size in receivedSizePeaceMap) {
+        if (receivedSizePeaceMap[size] !== 0) {
+          var tr = document.createElement("tr");
+          tr.innerHTML = `<td>${size}</td><td>${formatNumber(receivedSizePeaceMap[size])}</td>`;
+          receivedList.appendChild(tr);
+        }
+      }
+      document.getElementById('company-received-peace').textContent = formatNumber(totalReceivedPeace);
+      document.getElementById('company-received-material').textContent = formatNumber(totalReceivedMaterial);
+      document.getElementById('company-received-finalgaj').textContent = formatNumber(totalReceivedFinalGaj);
+      document.getElementById('company-received-binai').textContent = formatBinaiAmount(totalReceivedBinaiAmount);
+
+      var deliverList = document.getElementById('company-deliver-list');
+      deliverList.innerHTML = "";
+      for (var size in deliverSizePeaceMap) {
+        if (deliverSizePeaceMap[size] !== 0) {
+          var tr = document.createElement("tr");
+          tr.innerHTML = `<td>${size}</td><td>${formatNumber(deliverSizePeaceMap[size])}</td>`;
+          deliverList.appendChild(tr);
+        }
+      }
+      document.getElementById('company-deliver-peace').textContent = formatNumber(totalDeliverPeace);
+      document.getElementById('company-deliver-material').textContent = formatNumber(totalDeliverMaterial);
+      document.getElementById('company-deliver-finalgaj').textContent = formatNumber(totalDeliverFinalGaj);
+      document.getElementById('company-deliver-binai').textContent = formatBinaiAmount(remainingBinai);
+
+      var balanceList = document.getElementById('company-balance-list');
+      balanceList.innerHTML = "";
+      var balanceSizePeaceMap = {};
+      var totalBalancePeace = 0;
+      var totalBalanceMaterial = 0;
+      var totalBalanceFinalGaj = 0;
+      var totalBalanceBinaiAmount = 0;
+
+      for (var size in receivedSizePeaceMap) {
+        balanceSizePeaceMap[size] = (receivedSizePeaceMap[size] || 0) - (deliverSizePeaceMap[size] || 0);
+        if (balanceSizePeaceMap[size] !== 0) {
+          var tr = document.createElement("tr");
+          tr.innerHTML = `<td>${size}</td><td>${formatNumber(balanceSizePeaceMap[size])}</td>`;
+          balanceList.appendChild(tr);
+          totalBalancePeace += balanceSizePeaceMap[size];
+        }
+      }
+
+      orders.forEach(order => {
+        if (!order.isReturn) {
+          totalBalanceMaterial += (order.kati || 0) + (order.tana || 0);
+          totalBalanceFinalGaj += order.finalGaj || 0;
+          totalBalanceBinaiAmount += order.binaiAmount || 0;
+        } else {
+          totalBalanceMaterial -= (Math.abs(order.kati || 0) + (order.materialJana || 0));
+          totalBalanceFinalGaj -= Math.abs(order.finalGaj || 0);
+          totalBalanceBinaiAmount -= Math.abs(order.binaiAmount || 0);
+        }
+      });
+
+      document.getElementById('company-balance-peace').textContent = formatNumber(totalBalancePeace);
+      document.getElementById('company-balance-material').textContent = formatNumber(totalBalanceMaterial);
+      document.getElementById('company-balance-finalgaj').textContent = formatNumber(totalBalanceFinalGaj);
+      document.getElementById('company-balance-binai').textContent = formatBinaiAmount(totalBalanceBinaiAmount);
+    }
+
+    function updateContractorStock() {
+      if (!selectedContractorProfile) return;
+      var orders = contractorOrders[selectedContractorProfile.name] || [];
+      var receivedSizePeaceMap = {};
+      var deliverSizePeaceMap = {};
+      var totalReceivedPeace = 0, totalReceivedMaterial = 0, totalReceivedFinalGaj = 0, totalReceivedBinaiAmount = 0;
+      var totalDeliverPeace = 0, totalDeliverMaterial = 0, totalDeliverFinalGaj = 0, totalDeliverBinaiAmount = 0;
+
+      orders.forEach(function(order) {
+        if (!order.isReturn) {
+          if (!receivedSizePeaceMap[order.size]) receivedSizePeaceMap[order.size] = 0;
+          receivedSizePeaceMap[order.size] += order.peace || 0;
+          totalReceivedPeace += order.peace || 0;
+          totalReceivedMaterial += (order.kati || 0) + (order.tana || 0);
+          totalReceivedFinalGaj += order.finalGaj || 0;
+          totalReceivedBinaiAmount += order.binaiAmount || 0;
+        } else {
+          if (!deliverSizePeaceMap[order.size]) deliverSizePeaceMap[order.size] = 0;
+          deliverSizePeaceMap[order.size] += Math.abs(order.peace || 0);
+          totalDeliverPeace += Math.abs(order.peace || 0);
+          totalDeliverMaterial += Math.abs(order.kati || 0) + (order.materialJana || 0);
+          totalDeliverFinalGaj += Math.abs(order.finalGaj || 0);
+          totalDeliverBinaiAmount += Math.abs(order.binaiAmount || 0);
+        }
+      });
+
+      var totalPaidAmount = (contractorPayments[selectedContractorProfile.name] || []).reduce((sum, p) => sum + p.amount, 0);
+      var remainingBinai = Math.max(0, totalDeliverBinaiAmount - totalPaidAmount);
+
+      var receivedList = document.getElementById('contractor-received-list');
+      receivedList.innerHTML = "";
+      for (var size in receivedSizePeaceMap) {
+        if (receivedSizePeaceMap[size] !== 0) {
+          var tr = document.createElement("tr");
+          tr.innerHTML = `<td>${size}</td><td>${formatNumber(receivedSizePeaceMap[size])}</td>`;
+          receivedList.appendChild(tr);
+        }
+      }
+      document.getElementById('contractor-received-peace').textContent = formatNumber(totalReceivedPeace);
+      document.getElementById('contractor-received-material').textContent = formatNumber(totalReceivedMaterial);
+      document.getElementById('contractor-received-finalgaj').textContent = formatNumber(totalReceivedFinalGaj);
+      document.getElementById('contractor-received-binai').textContent = formatBinaiAmount(totalReceivedBinaiAmount);
+
+      var deliverList = document.getElementById('contractor-deliver-list');
+      deliverList.innerHTML = "";
+      for (var size in deliverSizePeaceMap) {
+        if (deliverSizePeaceMap[size] !== 0) {
+          var tr = document.createElement("tr");
+          tr.innerHTML = `<td>${size}</td><td>${formatNumber(deliverSizePeaceMap[size])}</td>`;
+          deliverList.appendChild(tr);
+        }
+      }
+      document.getElementById('contractor-deliver-peace').textContent = formatNumber(totalDeliverPeace);
+      document.getElementById('contractor-deliver-material').textContent = formatNumber(totalDeliverMaterial);
+      document.getElementById('contractor-deliver-finalgaj').textContent = formatNumber(totalDeliverFinalGaj);
+      document.getElementById('contractor-deliver-binai').textContent = formatBinaiAmount(remainingBinai);
+
+      var balanceList = document.getElementById('contractor-balance-list');
+      balanceList.innerHTML = "";
+      var balanceSizePeaceMap = {};
+      var totalBalancePeace = 0;
+      var totalBalanceMaterial = 0;
+      var totalBalanceFinalGaj = 0;
+      var totalBalanceBinaiAmount = 0;
+
+      for (var size in receivedSizePeaceMap) {
+        balanceSizePeaceMap[size] = (receivedSizePeaceMap[size] || 0) - (deliverSizePeaceMap[size] || 0);
+        if (balanceSizePeaceMap[size] !== 0) {
+          var tr = document.createElement("tr");
+          tr.innerHTML = `<td>${size}</td><td>${formatNumber(balanceSizePeaceMap[size])}</td>`;
+          balanceList.appendChild(tr);
+          totalBalancePeace += balanceSizePeaceMap[size];
+        }
+      }
+
+      orders.forEach(order => {
+        if (!order.isReturn) {
+          totalBalanceMaterial += (order.kati || 0) + (order.tana || 0);
+          totalBalanceFinalGaj += order.finalGaj || 0;
+          totalBalanceBinaiAmount += order.binaiAmount || 0;
+        } else {
+          totalBalanceMaterial -= (Math.abs(order.kati || 0) + (order.materialJana || 0));
+          totalBalanceFinalGaj -= Math.abs(order.finalGaj || 0);
+          totalBalanceBinaiAmount -= Math.abs(order.binaiAmount || 0);
+        }
+      });
+
+      document.getElementById('contractor-balance-peace').textContent = formatNumber(totalBalancePeace);
+      document.getElementById('contractor-balance-material').textContent = formatNumber(totalBalanceMaterial);
+      document.getElementById('contractor-balance-finalgaj').textContent = formatNumber(totalBalanceFinalGaj);
+      document.getElementById('contractor-balance-binai').textContent = formatBinaiAmount(totalBalanceBinaiAmount);
+    }
+
+    function updateCompanyOrdersTable() {
+      var regularTable = document.getElementById('company-order-table');
+      var returnTable = document.getElementById('company-return-table');
+      
+      regularTable.querySelector('thead').innerHTML = "";
+      regularTable.querySelector('tbody').innerHTML = "";
+      returnTable.querySelector('thead').innerHTML = "";
+      returnTable.querySelector('tbody').innerHTML = "";
+      
+      var regularCols = ["Date", "Size", "Gaj", "Peace", "Final Gaj", "Kati", "Tana", "Rate", "Binai Amount", "Description", "Actions"];
+      var returnCols = ["Date", "Size", "Gaj", "Peace", "Final Gaj", "Carpet Weight", "Material Jana", "Rate", "Binai Amount", "Description", "Actions"];
+      
+      var regularHeaderRow = document.createElement("tr");
+      regularCols.forEach(col => {
+        var th = document.createElement("th");
+        th.textContent = col;
+        regularHeaderRow.appendChild(th);
+      });
+      var additionalCols = selectedCompanyProfile ? selectedCompanyProfile.additionalColumns || [] : [];
+      additionalCols.forEach(col => {
+        var th = document.createElement("th");
+        th.textContent = col;
+        regularHeaderRow.appendChild(th);
+      });
+      regularTable.querySelector('thead').appendChild(regularHeaderRow);
+      
+      var returnHeaderRow = document.createElement("tr");
+      returnCols.forEach(col => {
+        var th = document.createElement("th");
+        th.textContent = col;
+        returnHeaderRow.appendChild(th);
+      });
+      additionalCols.forEach(col => {
+        var th = document.createElement("th");
+        th.textContent = col;
+        returnHeaderRow.appendChild(th);
+      });
+      returnTable.querySelector('thead').appendChild(returnHeaderRow);
+      
+      var orders = companyOrders[selectedCompanyProfile.name] || [];
+      var regularOrders = orders.filter(order => !order.isReturn);
+      var returnOrders = orders.filter(order => order.isReturn);
+      
+      regularOrders.forEach(order => {
+        var row = regularTable.querySelector('tbody').insertRow();
+        row.setAttribute("data-id", order.id);
+        var peaceDisplay = formatNumber(order.peace);
+        row.innerHTML = `
+          <td>${order.date}</td>
+          <td>${order.size}</td>
+          <td>${formatNumber(order.gaj)}</td>
+          <td>${peaceDisplay}</td>
+          <td>${formatNumber(order.finalGaj)}</td>
+          <td>${formatNumber(order.kati)}</td>
+          <td>${formatNumber(order.tana)}</td>
+          <td>${formatNumber(order.rate)}</td>
+          <td>${formatBinaiAmount(order.binaiAmount)}</td>
+          <td>${order.description || ''}</td>
+          <td></td>
+        `;
+        additionalCols.forEach(col => {
+          var td = row.insertCell();
+          td.textContent = order.additional && order.additional[col] ? order.additional[col] : "";
+        });
+        row.dataset.peace = order.peace;
+        row.ondblclick = function() { editRow(this, "company", false); };
+      });
+      
+      returnOrders.forEach(order => {
+        var row = returnTable.querySelector('tbody').insertRow();
+        row.setAttribute("data-id", order.id);
+        var peaceDisplay = formatNumber(Math.abs(order.peace));
+        row.innerHTML = `
+          <td>${order.date}</td>
+          <td>${order.size}</td>
+          <td>${formatNumber(order.gaj)}</td>
+          <td>${peaceDisplay}</td>
+          <td>${formatNumber(Math.abs(order.finalGaj))}</td>
+          <td>${formatNumber(Math.abs(order.kati))}</td>
+          <td>${formatNumber(order.materialJana)}</td>
+          <td>${formatNumber(order.rate)}</td>
+          <td>${formatBinaiAmount(Math.abs(order.binaiAmount))}</td>
+          <td>${order.description || ''}</td>
+          <td></td>
+        `;
+        additionalCols.forEach(col => {
+          var td = row.insertCell();
+          td.textContent = order.additional && order.additional[col] ? order.additional[col] : "";
+        });
+        row.dataset.peace = order.peace;
+        row.ondblclick = function() { editRow(this, "company", true); };
+      });
+    }
+
+    function updateContractorOrdersTable() {
+      var regularTable = document.getElementById('contractor-order-table');
+      var returnTable = document.getElementById('contractor-return-table');
+      
+      regularTable.querySelector('thead').innerHTML = "";
+      regularTable.querySelector('tbody').innerHTML = "";
+      returnTable.querySelector('thead').innerHTML = "";
+      returnTable.querySelector('tbody').innerHTML = "";
+      
+      var regularCols = ["Date", "Size", "Gaj", "Peace", "Final Gaj", "Kati", "Tana", "Rate", "Binai Amount", "Description", "Company", "Actions"];
+      var returnCols = ["Date", "Size", "Gaj", "Peace", "Final Gaj", "Carpet Weight", "Material Jana", "Rate", "Binai Amount", "Description", "Company", "Actions"];
+      
+      var regularHeaderRow = document.createElement("tr");
+      regularCols.forEach(col => {
+        var th = document.createElement("th");
+        th.textContent = col;
+        if (col === "Company") th.classList.add("hidden");
+        regularHeaderRow.appendChild(th);
+      });
+      var additionalCols = selectedContractorProfile ? selectedContractorProfile.additionalColumns || [] : [];
+      additionalCols.forEach(col => {
+        var th = document.createElement("th");
+        th.textContent = col;
+        regularHeaderRow.appendChild(th);
+      });
+      regularTable.querySelector('thead').appendChild(regularHeaderRow);
+      
+      var returnHeaderRow = document.createElement("tr");
+      returnCols.forEach(col => {
+        var th = document.createElement("th");
+        th.textContent = col;
+        if (col === "Company") th.classList.add("hidden");
+        returnHeaderRow.appendChild(th);
+      });
+      additionalCols.forEach(col => {
+        var th = document.createElement("th");
+        th.textContent = col;
+        returnHeaderRow.appendChild(th);
+      });
+      returnTable.querySelector('thead').appendChild(returnHeaderRow);
+      
+      var orders = contractorOrders[selectedContractorProfile.name] || [];
+      var regularOrders = orders.filter(order => !order.isReturn);
+      var returnOrders = orders.filter(order => order.isReturn);
+      
+      regularOrders.forEach(order => {
+        var row = regularTable.querySelector('tbody').insertRow();
+        row.setAttribute("data-id", order.id);
+        var peaceDisplay = formatNumber(order.peace);
+        row.innerHTML = `
+          <td>${order.date}</td>
+          <td>${order.size}</td>
+          <td>${formatNumber(order.gaj)}</td>
+          <td>${peaceDisplay}</td>
+          <td>${formatNumber(order.finalGaj)}</td>
+          <td>${formatNumber(order.kati)}</td>
+          <td>${formatNumber(order.tana)}</td>
+          <td>${formatNumber(order.rate)}</td>
+          <td>${formatBinaiAmount(order.binaiAmount)}</td>
+          <td>${order.description || ''}</td>
+          <td class="hidden">${order.company || ''}</td>
+          <td></td>
+        `;
+        additionalCols.forEach(col => {
+          var td = row.insertCell();
+          td.textContent = order.additional && order.additional[col] ? order.additional[col] : "";
+        });
+        row.dataset.peace = order.peace;
+        row.ondblclick = function() { editRow(this, "contractor", false); };
+      });
+      
+      returnOrders.forEach(order => {
+        var row = returnTable.querySelector('tbody').insertRow();
+        row.setAttribute("data-id", order.id);
+        var peaceDisplay = formatNumber(Math.abs(order.peace));
+        row.innerHTML = `
+          <td>${order.date}</td>
+          <td>${order.size}</td>
+          <td>${formatNumber(order.gaj)}</td>
+          <td>${peaceDisplay}</td>
+          <td>${formatNumber(Math.abs(order.finalGaj))}</td>
+          <td>${formatNumber(Math.abs(order.kati))}</td>
+          <td>${formatNumber(order.materialJana)}</td>
+          <td>${formatNumber(order.rate)}</td>
+          <td>${formatBinaiAmount(Math.abs(order.binaiAmount))}</td>
+          <td>${order.description || ''}</td>
+          <td class="hidden">${order.company || ''}</td>
+          <td></td>
+        `;
+        additionalCols.forEach(col => {
+          var td = row.insertCell();
+          td.textContent = order.additional && order.additional[col] ? order.additional[col] : "";
+        });
+        row.dataset.peace = order.peace;
+        row.ondblclick = function() { editRow(this, "contractor", true); };
+      });
+    }
+
+    function editRow(row, type, isReturn) {
+      if (row.classList.contains('editing')) return;
+      row.classList.add('editing');
+      var cells = row.cells;
+      var dateCell = cells[0];
+      var dateVal = dateCell.textContent;
+      dateCell.innerHTML = `<input type="date" value="${dateVal}">`;
+      var sizeCell = cells[1];
+      var sizeVal = sizeCell.textContent;
+      sizeCell.innerHTML = `<input type="text" value="${sizeVal}">`;
+      var peaceCell = cells[3];
+      var peaceVal = row.dataset.peace ? row.dataset.peace : peaceCell.textContent;
+      peaceCell.innerHTML = `<input type="number" step="any" value="${peaceVal}">`;
+      var katiCell = cells[5];
+      var katiVal = katiCell.textContent;
+      katiCell.innerHTML = `<input type="number" step="any" value="${katiVal}">`;
+      var tanaOrMaterialJanaCell = cells[6];
+      var tanaOrMaterialJanaVal = tanaOrMaterialJanaCell.textContent;
+      tanaOrMaterialJanaCell.innerHTML = `<input type="number" step="any" value="${tanaOrMaterialJanaVal}">`;
+      var rateCell = cells[7];
+      var rateVal = rateCell.textContent;
+      rateCell.innerHTML = `<input type="number" step="any" value="${rateVal}">`;
+      var descriptionCell = cells[9];
+      var descriptionVal = descriptionCell.textContent;
+      descriptionCell.innerHTML = `<input type="text" value="${descriptionVal}">`;
+      var actionCell = cells[11] || cells[10];
+      actionCell.innerHTML = `<button onclick="saveRow(this, '${type}', ${isReturn})">Save</button> <button onclick="deleteRow(this, '${type}', ${isReturn})">Delete</button>`;
+
+      var orders = (type === "company") ? companyOrders[selectedCompanyProfile.name] : contractorOrders[selectedContractorProfile.name];
+      var order = orders.find(o => o.id == row.getAttribute("data-id"));
+      var currentCols = (type === "company") ? (selectedCompanyProfile ? selectedCompanyProfile.additionalColumns || [] : []) :
+                        (selectedContractorProfile ? selectedContractorProfile.additionalColumns || [] : []);
+      currentCols.forEach((col, index) => {
+        var tdIndex = type === "company" ? 11 + index : 12 + index;
+        var td = cells[tdIndex];
+        td.innerHTML = `<input type="text" value="${order.additional && order.additional[col] ? order.additional[col] : ''}">`;
+      });
+    }
+
+    function saveRow(saveBtn, type, isReturn) {
+      var row = saveBtn.closest('tr');
+      var cells = row.cells;
+      var date = cells[0].querySelector('input').value;
+      var sizeInput = cells[1].querySelector('input').value;
+      var peace = parseFloat(cells[3].querySelector('input').value) || 0;
+      row.dataset.peace = peace;
+      var kati = parseFloat(cells[5].querySelector('input').value) || 0;
+      var tanaOrMaterialJana = parseFloat(cells[6].querySelector('input').value) || 0;
+      var materialJana = isReturn ? tanaOrMaterialJana : 0;
+      var tana = !isReturn ? tanaOrMaterialJana : 0;
+      var rate = parseFloat(cells[7].querySelector('input').value) || 0;
+      var description = cells[9].querySelector('input').value;
+
+      var sizeParts = sizeInput.split(/[×x]/);
+      if (sizeParts.length !== 2) {
+        alert("Please enter a valid size in the format 'width×height'");
+        return;
+      }
+      try {
+        var widthInches = parseSizeToInches(sizeParts[0].trim());
+        var heightInches = parseSizeToInches(sizeParts[1].trim());
+      } catch (e) {
+        alert("Invalid size format. Please use formats like '4.1' or '5' between 1 to 100 feet and 0 to 11 inches.");
+        return;
+      }
+      var product = widthInches * heightInches;
+      var gaj = product / 1296;
+      var finalGaj = gaj * peace;
+      var binaiAmount = Math.round(finalGaj * rate);
+
+      var displayedSize = sizeParts[0].trim() + "×" + sizeParts[1].trim();
+
+      var orderId = row.getAttribute("data-id");
+      var orders = (type === "company") ? companyOrders[selectedCompanyProfile.name] : contractorOrders[selectedContractorProfile.name];
+      var oldOrder = orders.find(o => o.id == orderId);
+      var additionalData = {};
+      var currentCols = (type === "company") ? (selectedCompanyProfile ? selectedCompanyProfile.additionalColumns || [] : []) :
+                        (selectedContractorProfile ? selectedContractorProfile.additionalColumns || [] : []);
+      currentCols.forEach((col, index) => {
+        var tdIndex = type === "company" ? 11 + index : 12 + index;
+        var input = cells[tdIndex].querySelector("input");
+        additionalData[col] = input ? input.value : "";
+        cells[tdIndex].textContent = additionalData[col];
+      });
+
+      if (type === "company") {
+        var peaceDisplay = isReturn ? formatNumber(Math.abs(peace)) : formatNumber(peace);
+        cells[0].textContent = date;
+        cells[1].textContent = displayedSize;
+        cells[2].textContent = formatNumber(gaj);
+        cells[3].textContent = peaceDisplay;
+        cells[4].textContent = isReturn ? formatNumber(Math.abs(finalGaj)) : formatNumber(finalGaj);
+        cells[5].textContent = isReturn ? formatNumber(Math.abs(kati)) : formatNumber(kati);
+        cells[6].textContent = isReturn ? formatNumber(materialJana) : formatNumber(tana);
+        cells[7].textContent = formatNumber(rate);
+        cells[8].textContent = formatBinaiAmount(isReturn ? Math.abs(binaiAmount) : binaiAmount);
+        cells[9].textContent = description;
+        cells[10].innerHTML = '';
+
+        orders.forEach(o => {
+          if (o.id == orderId) {
+            o.date = date;
+            o.size = displayedSize;
+            o.gaj = gaj;
+            o.peace = isReturn ? -peace : peace;
+            o.finalGaj = isReturn ? -finalGaj : finalGaj;
+            o.kati = isReturn ? -kati : kati;
+            o.tana = isReturn ? 0 : tana;
+            o.materialJana = isReturn ? materialJana : 0;
+            o.rate = rate;
+            o.binaiAmount = isReturn ? -binaiAmount : binaiAmount;
+            o.description = description;
+            o.additional = additionalData;
+          }
+        });
+        recalculateCompanyStock(selectedCompanyProfile.name);
+        db.ref('companyOrders').set(companyOrders);
+        db.ref('companyStock').set(companyStock);
+        updateCompanyOrdersTable();
+        updateCompanyStock();
+      } else {
+        if (oldOrder.company) {
+          var company = oldOrder.company;
+          companyStock[company].issueSizePeaceMap[oldOrder.size] -= oldOrder.peace;
+          if (companyStock[company].issueSizePeaceMap[oldOrder.size] <= 0) delete companyStock[company].issueSizePeaceMap[oldOrder.size];
+          companyStock[company].issueKati -= oldOrder.kati;
+          companyStock[company].issueTana -= oldOrder.tana;
+          companyStock[company].issueFinalGaj -= oldOrder.finalGaj;
+          companyStock[company].issueBinaiAmount -= oldOrder.binaiAmount;
+
+          companyStock[company].sizePeaceMap[oldOrder.size] += oldOrder.peace;
+          companyStock[company].kati += oldOrder.kati;
+          companyStock[company].tana += oldOrder.tana;
+          companyStock[company].finalGaj += oldOrder.finalGaj;
+          companyStock[company].binaiAmount += oldOrder.binaiAmount;
+
+          if (!companyStock[company].issueSizePeaceMap[displayedSize]) companyStock[company].issueSizePeaceMap[displayedSize] = 0;
+          companyStock[company].issueSizePeaceMap[displayedSize] += peace;
+          companyStock[company].issueKati += kati;
+          companyStock[company].issueTana += tana;
+          companyStock[company].issueFinalGaj += finalGaj;
+          companyStock[company].issueBinaiAmount += binaiAmount;
+
+          companyStock[company].sizePeaceMap[displayedSize] -= peace;
+          companyStock[company].kati -= kati;
+          companyStock[company].tana -= tana;
+          companyStock[company].finalGaj -= finalGaj;
+          companyStock[company].binaiAmount -= binaiAmount;
+        }
+
+        var peaceDisplay = isReturn ? formatNumber(Math.abs(peace)) : formatNumber(peace);
+        cells[0].textContent = date;
+        cells[1].textContent = displayedSize;
+        cells[2].textContent = formatNumber(gaj);
+        cells[3].textContent = peaceDisplay;
+        cells[4].textContent = isReturn ? formatNumber(Math.abs(finalGaj)) : formatNumber(finalGaj);
+        cells[5].textContent = isReturn ? formatNumber(Math.abs(kati)) : formatNumber(kati);
+        cells[6].textContent = isReturn ? formatNumber(materialJana) : formatNumber(tana);
+        cells[7].textContent = formatNumber(rate);
+        cells[8].textContent = formatBinaiAmount(isReturn ? Math.abs(binaiAmount) : binaiAmount);
+        cells[9].textContent = description;
+        cells[10].textContent = oldOrder.company || '';
+        cells[11].innerHTML = '';
+
+        orders.forEach(o => {
+          if (o.id == orderId) {
+            o.date = date;
+            o.size = displayedSize;
+            o.gaj = gaj;
+            o.peace = isReturn ? -peace : peace;
+            o.finalGaj = isReturn ? -finalGaj : finalGaj;
+            o.kati = isReturn ? -kati : kati;
+            o.tana = isReturn ? 0 : tana;
+            o.materialJana = isReturn ? materialJana : 0;
+            o.rate = rate;
+            o.binaiAmount = isReturn ? -binaiAmount : binaiAmount;
+            o.description = description;
+            o.additional = additionalData;
+          }
+        });
+        db.ref('contractorOrders').set(contractorOrders);
+        if (oldOrder.company) db.ref('companyStock').set(companyStock);
+        updateContractorStock();
+      }
+      row.classList.remove('editing');
+    }
+
+    function deleteRow(deleteBtn, type, isReturn) {
+      var row = deleteBtn.closest('tr');
+      var orderId = row.getAttribute("data-id");
+      if (!confirm("Are you sure you want to delete this order?")) return;
+
+      var orders = (type === "company") ? companyOrders[selectedCompanyProfile.name] : contractorOrders[selectedContractorProfile.name];
+      var order = orders.find(o => o.id == orderId);
+
+      if (type === "company") {
+        companyOrders[selectedCompanyProfile.name] = orders.filter(o => o.id != orderId);
+        recalculateCompanyStock(selectedCompanyProfile.name);
+        db.ref('companyOrders').set(companyOrders);
+        db.ref('companyStock').set(companyStock);
+        updateCompanyOrdersTable();
+        updateCompanyStock();
+      } else {
+        if (order.company) {
+          var company = order.company;
+          if (!order.isReturn) {
+            companyStock[company].issueSizePeaceMap[order.size] = (companyStock[company].issueSizePeaceMap[order.size] || 0) - order.peace;
+            if (companyStock[company].issueSizePeaceMap[order.size] <= 0) delete companyStock[company].issueSizePeaceMap[order.size];
+            companyStock[company].issueKati = (companyStock[company].issueKati || 0) - order.kati;
+            companyStock[company].issueTana = (companyStock[company].issueTana || 0) - order.tana;
+            companyStock[company].issueFinalGaj = (companyStock[company].issueFinalGaj || 0) - order.finalGaj;
+            companyStock[company].issueBinaiAmount = (companyStock[company].issueBinaiAmount || 0) - order.binaiAmount;
+
+            companyStock[company].sizePeaceMap[order.size] = (companyStock[company].sizePeaceMap[order.size] || 0) + order.peace;
+            companyStock[company].kati = (companyStock[company].kati || 0) + order.kati;
+            companyStock[company].tana = (companyStock[company].tana || 0) + order.tana;
+            companyStock[company].finalGaj = (companyStock[company].finalGaj || 0) + order.finalGaj;
+            companyStock[company].binaiAmount = (companyStock[company].binaiAmount || 0) + order.binaiAmount;
+          } else {
+            companyStock[company].sizePeaceMap[order.size] = (companyStock[company].sizePeaceMap[order.size] || 0) - order.peace;
+            if (companyStock[company].sizePeaceMap[order.size] <= 0) delete companyStock[company].sizePeaceMap[order.size];
+            companyStock[company].kati = (companyStock[company].kati || 0) - order.kati;
+            companyStock[company].tana = (companyStock[company].tana || 0) - order.materialJana;
+            companyStock[company].finalGaj = (companyStock[company].finalGaj || 0) - order.finalGaj;
+            companyStock[company].binaiAmount = (companyStock[company].binaiAmount || 0) - order.binaiAmount;
+          }
+          db.ref('companyStock').set(companyStock);
+        }
+
+        contractorOrders[selectedContractorProfile.name] = orders.filter(o => o.id != orderId);
+        db.ref('contractorOrders').set(contractorOrders);
+        updateContractorOrdersTable();
+        updateContractorStock();
+      }
+    }
+
+    function showPayAmountSection(type) {
+      hideAllSections();
+      document.getElementById('pay-amount-section').style.display = 'block';
+      currentOrderType = type;
+      var profile = (type === "company") ? selectedCompanyProfile : selectedContractorProfile;
+      document.getElementById('pay-to-name').textContent = profile ? profile.name : '';
+      var orders = (type === "company") ? companyOrders[profile.name] : contractorOrders[profile.name];
+      var totalDeliverBinai = orders.reduce((sum, order) => order.isReturn ? sum + Math.abs(order.binaiAmount) : sum, 0);
+      var totalPaid = ((type === "company" ? companyPayments : contractorPayments)[profile.name] || []).reduce((sum, p) => sum + p.amount, 0);
+      document.getElementById('remaining-binai-display').value = formatBinaiAmount(Math.max(0, totalDeliverBinai - totalPaid));
+    }
+
+    document.getElementById('pay-amount-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      var date = document.querySelector('#pay-amount-form input[name="date"]').value;
+      var amount = parseFloat(document.querySelector('#pay-amount-form input[name="amount"]').value) || 0;
+      var paymentMode = document.querySelector('#pay-amount-form select[name="payment-mode"]').value;
+      if (!date || !amount || !paymentMode) {
+        alert("Please fill all payment fields.");
+        return;
+      }
+      var payment = { date: date, amount: amount, mode: paymentMode };
+      var profile = (currentOrderType === "company") ? selectedCompanyProfile : selectedContractorProfile;
+      var payments = (currentOrderType === "company") ? companyPayments : contractorPayments;
+      if (!payments[profile.name]) payments[profile.name] = [];
+      payments[profile.name].push(payment);
+      db.ref(currentOrderType === "company" ? 'companyPayments' : 'contractorPayments').set(payments);
+      document.getElementById('pay-amount-form').reset();
+      cancelToOrders();
+    });
+
+    function showPaymentDetailSection(type) {
+      hideAllSections();
+      document.getElementById('payment-detail-section').style.display = 'block';
+      currentOrderType = type;
+      var profile = (type === "company") ? selectedCompanyProfile : selectedContractorProfile;
+      document.getElementById('payment-detail-name').textContent = profile ? profile.name : '';
+
+      var orders = (type === "company") ? companyOrders[profile.name] : contractorOrders[profile.name];
+      var totalReceivedBinai = orders.reduce((sum, order) => !order.isReturn ? sum + order.binaiAmount : sum, 0);
+      var totalDeliverBinai = orders.reduce((sum, order) => order.isReturn ? sum + Math.abs(order.binaiAmount) : sum, 0);
+      var totalBalanceBinai = totalReceivedBinai - totalDeliverBinai;
+      var payments = (type === "company" ? companyPayments : contractorPayments)[profile.name] || [];
+      var totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+      var outstanding = Math.max(0, totalDeliverBinai - totalPaid);
+
+      document.getElementById('total-received-binai').textContent = formatBinaiAmount(totalReceivedBinai);
+      document.getElementById('total-balance-binai').textContent = formatBinaiAmount(totalBalanceBinai);
+      document.getElementById('total-deliver-binai').textContent = formatBinaiAmount(totalDeliverBinai);
+      document.getElementById('total-deliver-binai-payment').textContent = formatBinaiAmount(totalDeliverBinai);
+      document.getElementById('total-paid-amount').textContent = formatBinaiAmount(totalPaid);
+      document.getElementById('outstanding-amount').textContent = formatBinaiAmount(outstanding);
+
+      var tbody = document.getElementById('payment-history-table').querySelector('tbody');
+      tbody.innerHTML = "";
+      payments.forEach(payment => {
+        var tr = document.createElement("tr");
+        tr.innerHTML = `<td>${payment.date}</td><td>${formatBinaiAmount(payment.amount)}</td><td>${payment.mode}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function editTitle(element, type) {
+      var currentText = element.textContent;
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.value = currentText;
+      input.style.width = '200px';
+      input.style.padding = '5px';
+      input.style.fontSize = '16px';
+      element.innerHTML = '';
+      element.appendChild(input);
+      input.focus();
+      input.onblur = function() {
+        var newText = input.value.trim();
+        element.textContent = newText || currentText;
+        if (type === 'title') localStorage.setItem('contractorTitle', newText || 'MH Qadri Export Rugs');
+        else localStorage.setItem('contractorSubtitle', newText || 'Mirzapur');
+      };
+      input.onkeypress = function(e) {
+        if (e.key === 'Enter') input.blur();
+      };
+    }
+  </script>
+</body>
+</html>
